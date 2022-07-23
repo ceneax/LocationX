@@ -5,7 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class LXLog {
+class LXLog {
     private static final String TAG = "Log_LocationX";
     private static ILogPrinter mLogPrinter;
 

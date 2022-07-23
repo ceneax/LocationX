@@ -15,10 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.location.LocationManagerCompat;
 
-import java.util.Iterator;
-import java.util.function.Function;
-
 public class LocationCore {
+    // 系统单次最长定位时间
+    private static final long MAX_SINGLE_LOCATION_TIMEOUT_MS = 30 * 1000;
+
     private final LocationManager mLocationManager;
 
     public LocationCore(@NonNull LocationManager locationManager) {
@@ -90,6 +90,7 @@ public class LocationCore {
                     satelliteStatusListener.removeListener();
 
                     locationCallback.onResult(finalBestLocation[0]);
+                    LXLog.i(finalBestLocation[0].toString());
                     hasFinished[0] = true;
                 }
             };
@@ -101,15 +102,16 @@ public class LocationCore {
                 mLocationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, networkListener, Looper.getMainLooper());
             }
 
-            if (timeout <= 0) {
-                LXLog.d("未设置超时时间，gpsListener 执行回调后将自动结束");
-                return;
+            if (timeout <= 0 || timeout > MAX_SINGLE_LOCATION_TIMEOUT_MS) {
+                timeout = MAX_SINGLE_LOCATION_TIMEOUT_MS;
+                LXLog.d("未设置超时时间，gpsListener 将使用系统默认超时时间：" + timeout + "ms");
             }
 
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (!hasFinished[0]) {
                     LXLog.d("超时时间已到，gpsListener 未获取到定位信息");
                     locationCallback.onResult(finalBestLocation[0]);
+                    LXLog.i(finalBestLocation[0].toString());
                 }
 
                 mLocationManager.removeUpdates(gpsListener);
@@ -174,7 +176,7 @@ public class LocationCore {
 
                     // 至少三颗有效卫星才判定为满足GPS定位条件
                     if (validSatelliteCount < 3) {
-                        LXLog.e("达标卫星个数小于3，可能不满足定位条件");
+                        LXLog.e("达标卫星个数小于3，不满足定位条件");
                     } else {
                         LXLog.d("达标卫星个数大于等于3，满足定位条件");
                     }
@@ -203,7 +205,7 @@ public class LocationCore {
 
                     // 至少三颗有效卫星才判定为满足GPS定位条件
                     if (validSatelliteCount < 3) {
-                        LXLog.e("达标卫星个数小于3，可能不满足定位条件");
+                        LXLog.e("达标卫星个数小于3，不满足定位条件");
                     } else {
                         LXLog.d("达标卫星个数大于等于3，满足定位条件");
                     }

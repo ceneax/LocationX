@@ -21,11 +21,11 @@ public class LocationX {
         LXLog.setLogPrinter(logPrinter);
     }
 
-    public static void setBaseCoordType(CoordType coordType) {
+    public static void setCoordType(CoordType coordType) {
         mBaseCoordType = coordType;
     }
 
-    public static CoordType getBaseCoordType() {
+    public static CoordType getCoordType() {
         return mBaseCoordType;
     }
 

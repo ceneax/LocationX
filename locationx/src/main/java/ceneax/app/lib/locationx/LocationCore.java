@@ -176,7 +176,7 @@ public class LocationCore {
 
                     // 至少三颗有效卫星才判定为满足GPS定位条件
                     if (validSatelliteCount < 3) {
-                        LXLog.e("达标卫星个数小于3，不满足定位条件");
+                        LXLog.e("达标卫星个数小于3，可能不满足定位条件");
                     } else {
                         LXLog.d("达标卫星个数大于等于3，满足定位条件");
                     }
@@ -205,7 +205,7 @@ public class LocationCore {
 
                     // 至少三颗有效卫星才判定为满足GPS定位条件
                     if (validSatelliteCount < 3) {
-                        LXLog.e("达标卫星个数小于3，不满足定位条件");
+                        LXLog.e("达标卫星个数小于3，可能不满足定位条件");
                     } else {
                         LXLog.d("达标卫星个数大于等于3，满足定位条件");
                     }

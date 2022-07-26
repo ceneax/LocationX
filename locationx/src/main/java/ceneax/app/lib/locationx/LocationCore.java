@@ -15,14 +15,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.location.LocationManagerCompat;
 
+/**
+ * <ul>
+ *     <li>Description: 位置定位核心类</li>
+ *     <li>Date: 2022-07-26 15:48</li>
+ *     <li>Author: ceneax</li>
+ * </ul>
+ */
 public class LocationCore {
-    // 系统单次最长定位时间
+    // 系统单次定位最大超时时间
     private static final long MAX_SINGLE_LOCATION_TIMEOUT_MS = 30 * 1000;
 
     private final LocationManager mLocationManager;
+    private final CoordType mCoordType;
 
-    public LocationCore(@NonNull LocationManager locationManager) {
+    private SatelliteStatusListener mSatelliteStatusListener;
+    private LocationListener mGpsListener;
+
+    public LocationCore(@NonNull LocationManager locationManager, @NonNull CoordType coordType) {
         mLocationManager = locationManager;
+        mCoordType = coordType;
     }
 
     public LocationManager getLocationManager() {
@@ -89,7 +101,7 @@ public class LocationCore {
                     mLocationManager.removeUpdates(this);
                     satelliteStatusListener.removeListener();
 
-                    locationCallback.onResult(finalBestLocation[0]);
+                    locationCallback.onResult(LocationUtil.transCoord(mCoordType, finalBestLocation[0]));
                     LXLog.i(finalBestLocation[0].toString());
                     hasFinished[0] = true;
                 }
@@ -110,7 +122,7 @@ public class LocationCore {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (!hasFinished[0]) {
                     LXLog.d("超时时间已到，gpsListener 未获取到定位信息");
-                    locationCallback.onResult(finalBestLocation[0]);
+                    locationCallback.onResult(LocationUtil.transCoord(mCoordType, finalBestLocation[0]));
                     LXLog.i(finalBestLocation[0].toString());
                 }
 
@@ -125,6 +137,34 @@ public class LocationCore {
     }
 
     @SuppressLint("MissingPermission")
+    public void requestLocation(long minTimeMs, float minDistanceM, @NonNull ILocationCallback locationCallback) {
+        if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            mSatelliteStatusListener = new SatelliteStatusListener(mLocationManager);
+
+            mGpsListener = location -> {
+                LXLog.d("requestLocationUpdates: gpsListener 执行回调，已得到定位信息");
+                locationCallback.onResult(LocationUtil.transCoord(mCoordType, location));
+                LXLog.i(location.toString());
+            };
+
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, minTimeMs, minDistanceM, mGpsListener, Looper.getMainLooper());
+        } else {
+            LXLog.d("requestLocation: GPS Provider 无效，持续定位失败");
+        }
+    }
+
+    public void stopRequestLocation() {
+        if (mSatelliteStatusListener != null) {
+            mSatelliteStatusListener.removeListener();
+            mSatelliteStatusListener = null;
+        }
+        if (mGpsListener != null) {
+            mLocationManager.removeUpdates(mGpsListener);
+            mGpsListener = null;
+        }
+    }
+
+    @SuppressLint("MissingPermission")
     private static class SatelliteStatusListener {
         private final LocationManager mLocationManager;
 
@@ -134,6 +174,7 @@ public class LocationCore {
         public SatelliteStatusListener(LocationManager locationManager) {
             mLocationManager = locationManager;
 
+            // Android N Api 24 及以上版本适配
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 mGpsListener = createGpsStatus();
                 mLocationManager.addGpsStatusListener(mGpsListener);

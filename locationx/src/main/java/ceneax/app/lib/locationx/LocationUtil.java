@@ -2,8 +2,17 @@ package ceneax.app.lib.locationx;
 
 import android.location.Location;
 
+import androidx.annotation.NonNull;
+
 import java.util.Objects;
 
+/**
+ * <ul>
+ *     <li>Description: Location 工具类</li>
+ *     <li>Date: 2022-07-26 15:49</li>
+ *     <li>Author: ceneax</li>
+ * </ul>
+ */
 public class LocationUtil {
     // 两分钟，毫秒值
     private static final int TWO_MINUTES = 1000 * 60 * 2;
@@ -251,5 +260,24 @@ public class LocationUtil {
             return true;
         }
         return lat < 0.8293 || lat > 55.8271;
+    }
+
+    public static Location transCoord(CoordType targetCoordType, @NonNull Location location) {
+        switch (targetCoordType) {
+            case WGS84:
+                break;
+            case GCJ02:
+                double[] afterGcj02 = wgs84ToGcj02(location.getLatitude(), location.getLongitude());
+                location.setLatitude(afterGcj02[0]);
+                location.setLongitude(afterGcj02[1]);
+                break;
+            case BD09:
+                double[] afterBd09 = wgs84ToBd09(location.getLatitude(), location.getLongitude());
+                location.setLatitude(afterBd09[0]);
+                location.setLongitude(afterBd09[1]);
+                break;
+        }
+
+        return location;
     }
 }

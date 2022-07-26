@@ -7,13 +7,20 @@ import android.location.LocationManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * <ul>
+ *     <li>Description: LocationX 主类</li>
+ *     <li>Date: 2022-07-26 15:49</li>
+ *     <li>Author: ceneax</li>
+ * </ul>
+ */
 public class LocationX {
     private static Application mApp;
     private static CoordType mBaseCoordType = CoordType.WGS84;
 
     private LocationX() {}
 
-    public static void setApplication(@NonNull Application application) {
+    static void setApplication(@NonNull Application application) {
         mApp = application;
     }
 
@@ -30,6 +37,6 @@ public class LocationX {
     }
 
     public static LocationCore create() {
-        return new LocationCore((LocationManager) mApp.getSystemService(Context.LOCATION_SERVICE));
+        return new LocationCore((LocationManager) mApp.getSystemService(Context.LOCATION_SERVICE), mBaseCoordType);
     }
 }

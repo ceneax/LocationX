@@ -84,6 +84,21 @@ class MainActivity : AppCompatActivity() {
                 showToast("定位信息获取成功")
             }
         }
+
+        binding.btLongLoc.setOnClickListener {
+            if (binding.btLongLoc.text == "持续定位") {
+                if (!mLocation.isLocationEnabled) {
+                    showToast("请先打开 GPS 开关")
+                    return@setOnClickListener
+                }
+                binding.btLongLoc.text = "停止持续定位"
+                mLocation.requestLocation(0, 0F) {
+                }
+            } else {
+                binding.btLongLoc.text = "持续定位"
+                mLocation.stopRequestLocation()
+            }
+        }
     }
 
     private fun showToast(content: String) {

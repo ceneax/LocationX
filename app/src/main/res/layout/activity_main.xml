@@ -36,6 +36,13 @@
                     android:text="单次定位"
                     android:layout_margin="20dp"/>
 
+            <Button
+                    android:id="@+id/btLongLoc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="持续定位"
+                    android:layout_margin="20dp"/>
+
             <TextView
                     android:id="@+id/tvInfo"
                     android:layout_width="match_parent"
